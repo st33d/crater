@@ -4,6 +4,15 @@ package com.nitrome.phys{
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
+	/**
+	 * Throws Colliders away from its epicenter. Used to simulate explosions
+	 *
+	 * The object exists for one frame only and executes one the frame after it has been called.
+	 * This is to allow the stage to be set with the necessary items to throw whilst adding in
+	 * the required shockwaves at the same time.
+	 *
+	 * @author Aaron Steed, nitrome.com
+	 */
 	public class Shockwave extends Point{
 		
 		protected var hashMap:HashMap;

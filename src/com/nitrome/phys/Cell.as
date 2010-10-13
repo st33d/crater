@@ -1,5 +1,10 @@
 package com.nitrome.phys {
-
+	
+	/**
+	 * A unit on the HashMap. Exists only when it has Colliders in it to keep memory down.
+	 *
+	 * @author Aaron Steed, nitrome.com
+	 */
 	public class Cell {
 		
 		public var x:int;

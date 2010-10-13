@@ -1,0 +1,7 @@
+This is a very basic engine for simulating stacks of crates.
+
+The Game.as class shows a basic setup of the engine. You can give it access to a debugging graphic to see the internals working.
+
+As much as one can criticise it for being so limited, that's the point. It runs fast, and objects don't pass through each other - it's not at all spongy, the units in this engine are solid bricks.
+
+If there's any optimisations that could be further applied (other than a completely anal level of inlining), I would be very interested to hear of them as it would help future branches of this project a lot.

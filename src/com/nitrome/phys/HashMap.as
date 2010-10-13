@@ -1,22 +1,15 @@
 package com.nitrome.phys{
 	import flash.geom.Rectangle;
 	
-	/* The HashMap does what is says on the tin.
-	*
-	* It requires the scale to exceed the largest object it will be dealing with
-	* Therefore it is useful for lots of reasonably sized objects that don't differ
-	* in size too much - otherwise I'd be implementing a QuadTree
-	* 
-	* edit:
-	*
-	* This is now a variation on a HashMap - I've chosen to test more cells as opposed to register
-	* objects to more cells. This means I will only ever capture an object when looking for it once.
-	* I'm doing this by making the cells overlap and registering objects by their top left corner
-	*
-	* In this I'm hoping for a trade off of better movement and less to look at when debugging.
-	* There's also less objects to sort through on an area test - no duplicates
-	*/
-	
+	/**
+	 * A spatial hash-map for reduction of collision tests.
+	 *
+	 * This version of a hash-map assigns members by their top left corner to keep overhead in moving
+	 * the objects low. This means a slightly more complicated area testing method, but I feel the
+	 * trade-off in less duplicate tests and being far easier to debug is worth it
+	 *
+	 * @author Aaron Steed, nitrome.com
+	 */
 	public class HashMap{
 		
 		public var width:int;
@@ -51,8 +44,8 @@ package com.nitrome.phys{
 		* It is assumed that the scale of the Cells will always be equal to or larger than the Colliders,
 		* which allows assignment to be a far quicker operation */
 		public function addCollider(collider:Collider):void{
-			var mapX:int = collider.x * invScale;
-			var mapY:int = collider.y * invScale;
+			var mapX:int = (collider.x - bounds.x) * invScale;
+			var mapY:int = (collider.y - bounds.y) * invScale;
 			if(!cells[mapY][mapX]){
 				cells[mapY][mapX] = new Cell(mapX, mapY);
 			}
@@ -70,12 +63,11 @@ package com.nitrome.phys{
 		}
 		
 		/* Moves the Collider within the HashMap - recalculating its Cell occupation
-		* It requires knowledge of the distance moved in order to execute changes
 		*
 		* This method only performs assignment, it does not calculate collision */
 		public function updateCollider(collider:Collider):void{
-			var mapX:int = collider.x * invScale;
-			var mapY:int = collider.y * invScale;
+			var mapX:int = (collider.x - bounds.x) * invScale;
+			var mapY:int = (collider.y - bounds.y) * invScale;
 			if(collider.cell.x != mapX || collider.cell.y != mapY){
 				collider.cell.colliders.splice(collider.cell.colliders.indexOf(collider), 1);
 				if(collider.cell.colliders.length == 0){
@@ -95,8 +87,8 @@ package com.nitrome.phys{
 			// we need to test 4 cells - because they overlap
 			var i:int;
 			var mapX:int, mapY:int;
-			mapX = x * invScale;
-			mapY = y * invScale;
+			mapX = (x - bounds.x) * invScale;
+			mapY = (y - bounds.y) * invScale;
 			if(mapY - 1 >= 0 && mapX - 1 >= 0 && cells[mapY - 1][mapX - 1]){
 				for(i = 0; i < cells[mapY - 1][mapX - 1].colliders.length; i++){
 					if(cells[mapY - 1][mapX - 1].colliders[i].contains(x, y)){
@@ -133,8 +125,8 @@ package com.nitrome.phys{
 			var result:Vector.<Collider> = new Vector.<Collider>();
 			var collider:Collider;
 			var r:int, c:int, i:int;
-			var minX:int = area.x * invScale;
-			var minY:int = area.y * invScale;
+			var minX:int = (area.x - bounds.x) * invScale;
+			var minY:int = (area.y - bounds.y) * invScale;
 			var maxX:int = minX + Math.ceil(area.width * invScale);
 			var maxY:int = minY + Math.ceil(area.height * invScale);
 			// because the area tested involves overlaps, we step the minimum backwards

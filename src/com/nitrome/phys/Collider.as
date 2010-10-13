@@ -2,7 +2,19 @@ package com.nitrome.phys {
 
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-
+	
+	/**
+	 * A crate-like collision object.
+	 *
+	 * Collisions are handled recursively, allowing the object to push queues of crates.
+	 *
+	 * The Collider has several states to reflect how it may need to be handled.
+	 *
+	 * Colliders introduced to the physics simulation overlapping other Colliders will go into a FLOAT state
+	 * to allow them to drift up to the top of whatever stack they are sitting on.
+	 *
+	 * @author Aaron Steed, nitrome.com
+	 */
 	public class Collider extends Rectangle {
 		
 		public var state:int;
@@ -14,12 +26,13 @@ package com.nitrome.phys {
 		public var children:Vector.<Collider>;
 		public var cell:Cell;
 		public var awake:int;
+		public var userData:*;
 		
 		/* Establishes a minimum movement policy */
 		public static const TOLERANCE:Number = 0.0001;
 		
 		/* Echoing Box2D, colliders sleep when inactive to prevent method calls that aren't needed */
-		public static var AWAKE_DELAY:int = 10;
+		public static var AWAKE_DELAY:int = 3;
 		
 		private static var tempCollider:Collider;
 		
@@ -60,7 +73,19 @@ package com.nitrome.phys {
 				if(vx) moveX(vx);
 				if(vy) moveY(vy);
 			} else if(state == FLOAT){
+				if(vx){
+					vx *= AIR_DAMPING;
+					x += vx;
+				}
+				if(vy){
+					vy *= AIR_DAMPING;
+					y += vy;
+				}
 				y += FLOAT_SPEED;
+				if(x < hashMap.bounds.x) x = hashMap.bounds.x;
+				if(y < hashMap.bounds.y) y = hashMap.bounds.y;
+				if(x + width > hashMap.bounds.x + hashMap.bounds.width) (hashMap.bounds.x + hashMap.bounds.width) - width;
+				if(y + height > hashMap.bounds.y + hashMap.bounds.height) (hashMap.bounds.y + hashMap.bounds.height) - height;
 				if(hashMap.getCollidersIn(this).length == 0){
 					state = STACK;
 					hashMap.addCollider(this);
@@ -288,7 +313,7 @@ package com.nitrome.phys {
 						if(state == STACK && (!parent || (parent && obstacles[i] != parent))){
 							if(parent) parent.removeChild(this);
 							obstacles[i].addChild(this);
-						}						
+						}
 						break;
 						
 						
@@ -350,7 +375,7 @@ package com.nitrome.phys {
 				for(i = 0; i < children.length; i++){
 					children[i].moveY(vy);
 				}
-			}			
+			}
 			awake = AWAKE_DELAY;
 			return vy;
 		}
