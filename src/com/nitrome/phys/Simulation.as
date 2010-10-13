@@ -85,7 +85,7 @@ package com.nitrome.phys{
 		
 		/* Adds a shockwave effect to be applied on the next frame */
 		public function addShockwave(x:Number, y:Number, radius:Number, velocity:Number, step:Number):void{
-			shockwaves.push(new Shockwave(x, y, radius, velocity, step, hashMap));
+			shockwaves.push(new Shockwave(x, y, radius, velocity, step, this));
 		}
 		
 		/* Picks out a collider from all colliders available by also checking the floaters list */
@@ -94,6 +94,28 @@ package com.nitrome.phys{
 				if(floaters[i].contains(x, y)) return floaters[i];
 			}
 			return hashMap.getColliderAt(x, y);
+		}
+		
+		/* Return all the Colliders that touch the rectangle "area" */
+		public function getCollidersIn(area:Rectangle, ignore:Collider = null):Vector.<Collider>{
+			var result:Vector.<Collider> = hashMap.getCollidersIn(area, ignore);
+			var collider:Collider;
+			for(var i:int = 0; i < floaters.length; i++){
+				collider = floaters[i];
+				
+				// floating point error causes a lot of false positives, so that's
+				// why I'm using a tolerance value to ignore those drifting values
+				// at the end of the Number datatype
+				if(collider != ignore &&
+					collider.x + collider.width - HashMap.INTERVAL_TOLERANCE > area.x &&
+					collider.y + collider.height - HashMap.INTERVAL_TOLERANCE > area.y &&
+					area.x + area.width - HashMap.INTERVAL_TOLERANCE > collider.x &&
+					area.y + area.height - HashMap.INTERVAL_TOLERANCE > collider.y
+				){
+					result.push(collider);
+				}
+			}
+			return result;
 		}
 	}
 }

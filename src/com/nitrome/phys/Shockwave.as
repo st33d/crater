@@ -15,18 +15,18 @@ package com.nitrome.phys{
 	 */
 	public class Shockwave extends Point{
 		
-		protected var hashMap:HashMap;
+		protected var sim:Simulation;
 		public var radius:Number;
 		public var v:Number;
 		public var step:Number;
 		public var decay:Number;
 		
-		public function Shockwave(x:Number, y:Number, radius:Number, velocity:Number, step:Number, hashMap:HashMap){
+		public function Shockwave(x:Number, y:Number, radius:Number, velocity:Number, step:Number, sim:Simulation){
 			super(x, y);
 			this.radius = radius;
 			this.step = step;
 			this.decay = decay;
-			this.hashMap = hashMap;
+			this.sim = sim;
 			v = velocity / (radius / step);
 		}
 		
@@ -38,7 +38,7 @@ package com.nitrome.phys{
 			var colliders:Vector.<Collider>;
 			var length:Number;
 			for(var dist:Number = radius; dist > 0; dist -= step){
-				colliders = hashMap.getCollidersIn(new Rectangle(x - dist, y - dist, dist * 2, dist * 2));
+				colliders = sim.getCollidersIn(new Rectangle(x - dist, y - dist, dist * 2, dist * 2));
 				for(i = 0; i < colliders.length; i++){
 					vx = x - (colliders[i].x + colliders[i].width * 0.5);
 					vy = y - (colliders[i].y + colliders[i].height * 0.5);
